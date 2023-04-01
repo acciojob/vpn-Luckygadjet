@@ -48,6 +48,10 @@ public class ConnectionServiceImpl implements ConnectionService {
 
 
         List<ServiceProvider> serviceProviderList = user.getServiceProviderList();
+        if(serviceProviderList == null)
+        {
+            throw new Exception("Unable to connect");
+        }
 
         ServiceProvider serviceProvider = null;
         Country country = null;
@@ -67,26 +71,27 @@ public class ConnectionServiceImpl implements ConnectionService {
             }
         }
 
-        if(serviceProviderList == null || serviceProvider == null)
-        {
-            throw new Exception("Unable to connect");
-        }
+
 
         // We have to make A connection
-
-        Connection con = new Connection();
-        con.setUser(user);
-        con.setServiceProvider(serviceProvider);
+        if(serviceProvider != null) {
 
 
-        user.setConnected(true);
-        user.setMaskedIp(country.getCode()+"."+serviceProvider.getId()+"."+user.getId());
-        user.getConnectionList().add(con);
+            Connection con = new Connection();
+            con.setUser(user);
+            con.setServiceProvider(serviceProvider);
 
-        serviceProvider.getConnectionList().add(con);
 
-        userRepository2.save(user);
-        serviceProviderRepository2.save(serviceProvider);
+            user.setConnected(true);
+            user.setMaskedIp(country.getCode() + "." + serviceProvider.getId() + "." + user.getId());
+            user.getConnectionList().add(con);
+
+            serviceProvider.getConnectionList().add(con);
+
+            userRepository2.save(user);
+            serviceProviderRepository2.save(serviceProvider);
+        }
+
 
         return user;
 

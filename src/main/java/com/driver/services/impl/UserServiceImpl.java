@@ -49,7 +49,7 @@ public class UserServiceImpl  implements UserService{
         user.setUsername(username);
         user.setPassword(password);
         user.setConnected(false);
-        user.setCountry(country);
+        user.setOriginalCountry(country);
         //String code = country.getCode()+"."+;
         String code = country.getCode()+"."+user.getId();
         user.setOriginalIp(code);
@@ -69,7 +69,7 @@ public class UserServiceImpl  implements UserService{
 
         user.getServiceProviderList().add(serviceProvider);
 
-        serviceProvider.getUserList().add(user);
+        serviceProvider.getUsers().add(user);
 
         serviceProviderRepository3.save(serviceProvider);// Due to Cascading
 

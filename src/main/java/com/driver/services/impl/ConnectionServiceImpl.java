@@ -40,7 +40,7 @@ public class ConnectionServiceImpl implements ConnectionService {
         {
             throw  new Exception("Already Connected");
         }
-        if(user.getCountry().getCountryName().equals(countryName))
+        if(user.getOriginalCountry().getCountryName().equals(countryName))
         {
             return user;
         }
@@ -133,7 +133,7 @@ public class ConnectionServiceImpl implements ConnectionService {
         if(receiver.getConnected() == true)
         {
             String s = receiver.getMaskedIp().substring(0,3);
-            if(s.equals(sender.getCountry().getCode()))
+            if(s.equals(sender.getOriginalCountry().getCode()))
             {
                 return sender;
             }
@@ -164,12 +164,12 @@ public class ConnectionServiceImpl implements ConnectionService {
             }
 
         }
-        else if(receiver.getCountry().equals(sender.getCountry()))
+        else if(receiver.getOriginalCountry().equals(sender.getOriginalCountry()))
         {
             return sender;
         }
 
-        String countryName = receiver.getCountry().toString();
+        String countryName = receiver.getOriginalCountry().toString();
         User user2 = connect(senderId,countryName);
         if (!user2.getConnected()){
             throw new Exception("Cannot establish communication");

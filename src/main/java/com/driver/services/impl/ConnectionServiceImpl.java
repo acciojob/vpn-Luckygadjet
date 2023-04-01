@@ -34,61 +34,56 @@ public class ConnectionServiceImpl implements ConnectionService {
         // use the service provider having smallest id.
 
         User user = userRepository2.findById(userId).get();
-        countryName = countryName.toUpperCase();
-
-        if(user.getConnected() == true)
-        {
-            throw  new Exception("Already Connected");
+        if(user.getMaskedIp()!=null){
+            throw new Exception("Already connected");
         }
-        else if(user.getOriginalCountry().getCountryName().equals(countryName))
-        {
+        else if(countryName.equalsIgnoreCase(user.getOriginalCountry().getCountryName().toString())){
             return user;
         }
         else {
-            if (user.getServiceProviderList() == null) {
+            if (user.getServiceProviderList()==null){
                 throw new Exception("Unable to connect");
             }
 
-
             List<ServiceProvider> serviceProviderList = user.getServiceProviderList();
-
-            ServiceProvider serviceProvider = null;
-            Country country = null;
             int a = Integer.MAX_VALUE;
-            for (ServiceProvider serviceProvider1 : serviceProviderList) {
-                List<Country> countryList = serviceProvider.getCountryList();
-                for (Country c : countryList) {
-                    if (c.getCountryName().equals(countryName) && a > serviceProvider1.getId()) {
-                        serviceProvider = serviceProvider1;
-                        country = c;
-                        a = serviceProvider1.getId();
+            ServiceProvider serviceProvider = null;
+            Country country =null;
 
+            for(ServiceProvider serviceProvider1:serviceProviderList){
+
+                List<Country> countryList = serviceProvider1.getCountryList();
+
+                for (Country country1: countryList){
+
+                    if(countryName.equalsIgnoreCase(country1.getCountryName().toString()) && a > serviceProvider1.getId() ){
+                        a=serviceProvider1.getId();
+                        serviceProvider=serviceProvider1;
+                        country=country1;
                     }
                 }
             }
+            if (serviceProvider!=null){
+                Connection connection = new Connection();
+                connection.setUser(user);
+                connection.setServiceProvider(serviceProvider);
 
+                String cc = country.getCode();
+                int givenId = serviceProvider.getId();
+                String mask = cc+"."+givenId+"."+userId;
 
-            // We have to make A connection
-            if (serviceProvider != null) {
-
-
-                Connection con = new Connection();
-                con.setUser(user);
-                con.setServiceProvider(serviceProvider);
-
-
+                user.setMaskedIp(mask);
                 user.setConnected(true);
-                user.setMaskedIp(country.getCode() + "." + serviceProvider.getId() + "." + user.getId());
-                user.getConnectionList().add(con);
+                user.getConnectionList().add(connection);
 
-                serviceProvider.getConnectionList().add(con);
+                serviceProvider.getConnectionList().add(connection);
 
                 userRepository2.save(user);
                 serviceProviderRepository2.save(serviceProvider);
+
+
             }
         }
-
-
         return user;
 
     }

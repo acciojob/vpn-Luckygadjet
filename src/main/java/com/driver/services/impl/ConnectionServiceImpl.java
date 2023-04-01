@@ -40,56 +40,52 @@ public class ConnectionServiceImpl implements ConnectionService {
         {
             throw  new Exception("Already Connected");
         }
-        if(user.getOriginalCountry().getCountryName().equals(countryName))
+        else if(user.getOriginalCountry().getCountryName().equals(countryName))
         {
             return user;
         }
+        else {
+            if (user.getServiceProviderList() == null) {
+                throw new Exception("Unable to connect");
+            }
 
 
+            List<ServiceProvider> serviceProviderList = user.getServiceProviderList();
 
-        List<ServiceProvider> serviceProviderList = user.getServiceProviderList();
-        if(serviceProviderList == null)
-        {
-            throw new Exception("Unable to connect");
-        }
+            ServiceProvider serviceProvider = null;
+            Country country = null;
+            int a = Integer.MAX_VALUE;
+            for (ServiceProvider serviceProvider1 : serviceProviderList) {
+                List<Country> countryList = serviceProvider.getCountryList();
+                for (Country c : countryList) {
+                    if (c.getCountryName().equals(countryName) && a > serviceProvider1.getId()) {
+                        serviceProvider = serviceProvider1;
+                        country = c;
+                        a = serviceProvider1.getId();
 
-        ServiceProvider serviceProvider = null;
-        Country country = null;
-        int a = Integer.MAX_VALUE;
-        for(ServiceProvider serviceProvider1 : serviceProviderList)
-        {
-            List<Country> countryList = serviceProvider.getCountryList();
-            for(Country c : countryList)
-            {
-                if(c.getCountryName().equals(countryName) && a > serviceProvider1.getId())
-                {
-                    serviceProvider = serviceProvider1;
-                    country = c;
-                    a = serviceProvider1.getId();
-
+                    }
                 }
             }
-        }
 
 
-
-        // We have to make A connection
-        if(serviceProvider != null) {
-
-
-            Connection con = new Connection();
-            con.setUser(user);
-            con.setServiceProvider(serviceProvider);
+            // We have to make A connection
+            if (serviceProvider != null) {
 
 
-            user.setConnected(true);
-            user.setMaskedIp(country.getCode() + "." + serviceProvider.getId() + "." + user.getId());
-            user.getConnectionList().add(con);
+                Connection con = new Connection();
+                con.setUser(user);
+                con.setServiceProvider(serviceProvider);
 
-            serviceProvider.getConnectionList().add(con);
 
-            userRepository2.save(user);
-            serviceProviderRepository2.save(serviceProvider);
+                user.setConnected(true);
+                user.setMaskedIp(country.getCode() + "." + serviceProvider.getId() + "." + user.getId());
+                user.getConnectionList().add(con);
+
+                serviceProvider.getConnectionList().add(con);
+
+                userRepository2.save(user);
+                serviceProviderRepository2.save(serviceProvider);
+            }
         }
 
 
